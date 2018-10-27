@@ -38,7 +38,7 @@ Install Drupal 7 and CiviCRM on this server in a secure fashion with SSL certifi
 **Project Plan:**
 
 
-#### Following is the rough plan.####
+#### Following is the rough plan.
 
 
 | Day    | Tasks   |
@@ -54,7 +54,7 @@ Install Drupal 7 and CiviCRM on this server in a secure fashion with SSL certifi
 
 
 
-####Folder structure:####
+#### Folder structure:
 <pre><span><font color="#3465A4">ansible/</font></span>
 ├── ansible.cfg
 ├── <font color="#8AE234"><b>master.yml</b></font>
