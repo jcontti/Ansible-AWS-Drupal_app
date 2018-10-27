@@ -46,10 +46,10 @@
     image: "{{ ami_id }}"
     key_name: "{{ key_name }}"
     instance_tags:
-          Name: my_instance
+      Name: my_instance
     exact_count: 1
     count_tag:
-          Name: my_instance
+      Name: my_instance
     wait: true
   register: ec2host #Var_for_store_result_of_task
 
