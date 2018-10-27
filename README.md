@@ -1,4 +1,4 @@
-## Compucorp Junior Devops/Sysadmin Task ##
+## Devops/Sysadmin Tasks ##
 
 
 ### **Project Description:** ###
@@ -105,7 +105,7 @@ Install Drupal 7 and CiviCRM on this server in a secure fashion with SSL certifi
    [Configuring the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)  
 
 2. Change directory to the directory holding the ansible yml file, in this case is:  
-   `cd ~/Compucorp/ansible/`  
+   `cd ~/ansible-drupal-app/ansible/`  
 
 
 3. Once you have completed all the previous steps, you can run the playbook below.  

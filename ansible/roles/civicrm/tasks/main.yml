@@ -61,7 +61,6 @@
 - name: Enable CiviCRM
   command: drush pm-enable civicrm --root=/home/drupal/public_html --yes
 
-
 - name: Set perms on files civicrm
   command: chmod -R 755 /home/drupal/public_html/sites/default/files/civicrm
 
@@ -69,7 +68,6 @@
 
 - name: cache clear drush
   command: drush cache-clear drush
-
 
 - name: Install Views3
   command: drush dl views-7.x-3.18 -y
@@ -82,7 +80,6 @@
 
 - name: Change ownership
   command: chown www-data:www-data /home/drupal/public_html/sites/default/files -R
-
 
 - name: Modify CiviCRM Extension directory prereq
   lineinfile: dest=/home/drupal/public_html/sites/default/civicrm.settings.php regexp='^(.*)Add this line only once above any settings overrides' line="global $civicrm_setting;"

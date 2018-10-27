@@ -47,7 +47,6 @@
    src: ../templates/nginx.conf
    dest: /etc/nginx/nginx.conf
 
-
 - name: Copy Default conf
   template:
    src: ../templates/default

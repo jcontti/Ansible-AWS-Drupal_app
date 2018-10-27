@@ -58,7 +58,6 @@
    name: host_ip
    ansible_ssh_host: "{{ ec2host.tagged_instances[0].public_ip }}"
 
-
 - name: Wait for ssh #Wait_for_instance_to_start_ssh_service
   wait_for:
     port: 22

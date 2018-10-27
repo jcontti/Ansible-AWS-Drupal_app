@@ -6,7 +6,6 @@
     - python-pexpect
     - python-pip
     - python-boto3
-
  
 - name: Install awscli 
   apt: pkg=awscli install_recommends=yes update_cache=yes 
