@@ -1,0 +1,74 @@
+---
+
+- name: Update repo
+  raw: apt-get update
+
+- name: install python2
+  raw: apt-get -y install python-minimal python-mysqldb
+
+- name: Upgrade system
+  apt: upgrade=dist update_cache=yes
+
+- name: install python2
+  raw: apt-get -y install python-simplejson
+
+- name: Install NGINX
+  raw: apt-get install -y nginx
+
+- name: Install PHP and libs
+  raw: apt-get install -y php-fpm php-dom php-xml php-gd php-curl php-soap php-mcrypt
+
+- name: Install MYSQL-SERVER
+  apt: name=mysql-server update_cache=yes cache_valid_time=3600 state=present
+
+- name: Install PHP-MySQL
+  raw: apt-get install -y php-mysql
+
+- name: Install other depends
+  apt: name={{ item }} state=latest
+  with_items:
+    - python-dev
+    - gcc
+    - dialog
+    - libaugeas0
+    - augeas-lenses
+    - libssl-dev
+    - libffi-dev
+    - ca-certificates
+    - python-pip
+    - python-virtualenv
+    - libpython-dev
+    - zlib1g-dev
+
+
+- name: Lets Encrypt client
+  git: dest=/opt/certbot clone=yes repo=https://github.com/certbot/certbot force=yes
+
+- name: Create Certificate 
+  shell: /opt/certbot/certbot-auto certonly --nginx --noninteractive --email example_mail@gmail.com --agree-tos -d jcontti.ga
+
+
+# Auto-renew certificates and reload nginx
+- name: Add crontab to renew certificates
+  cron: name="leRenew" minute="30" hour="2" weekday="1" job="/opt/certbot/certbot-auto renew >> /var/log/le-renew.log"
+
+- name: Add crontab to reload server
+  cron: name="nginxReload" minute="35" hour="2" weekday="1" job="/etc/init.d/nginx reload"
+# weekday: Day of the week that the job should run ( 0-6 for Sunday-Saturday, *, etc )
+
+# PHP Configuration
+- name: php.ini - Change max upload size to 10M
+  replace: dest=/etc/php/7.0/fpm/php.ini regexp='^upload_max_filesize = .*$' replace='upload_max_filesize = 10M'
+
+- name: php.ini - Change memory limit to 256M
+  replace: dest=/etc/php/7.0/fpm/php.ini regexp='^memory_limit = .*$' replace='memory_limit = 256M'
+
+- name: php.ini - Ensure php7.0-fpm cgi.fix_pathinfo=0
+  lineinfile: dest=/etc/php/7.0/fpm/php.ini regexp='^(.*)cgi.fix_pathinfo=' line=cgi.fix_pathinfo=0
+
+- name: Restart PHP FPM
+  service:
+   name: php7.0-fpm
+   state: restarted
+
+

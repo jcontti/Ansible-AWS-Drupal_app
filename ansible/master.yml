@@ -1,0 +1,24 @@
+---
+
+ - hosts: localhost
+   user: ubuntu
+   sudo: no
+   gather_facts: False
+   
+   roles:
+    - aws
+
+
+ - hosts: host_ip #Public_ip_of_my_new_instance
+   become: yes
+   gather_facts: False
+
+   vars:
+     ansible_ssh_private_key_file: ~/.aws/Admin-key-pair-brazil.pem
+     ansible_ssh_user: ubuntu
+
+   roles:
+    - dependencies
+    - drupal
+    - civicrm
+    - backup

@@ -1,0 +1,15 @@
+---
+
+#backup vars -- Backups files to AWS S3 --
+aws_access_key: "{{ AWS_ACCESS_KEY_ID }}"
+aws_access_secret: "{{ AWS_SECRET_ACCESS_KEY }}"
+s3_bucket: "backup-bucket-example"
+s3_prefix: "test"
+backup_name: "{{ domain }}"
+backup_tmp_dest: "/tmp/dump"
+cronjob_name: "drupal_backup"
+cronjob_schedule_minute: "0"
+cronjob_schedule_hour: "4"
+cronjob_schedule_day: "*"
+cronjob_schedule_month: "*"
+cronjob_schedule_weekday: "*"

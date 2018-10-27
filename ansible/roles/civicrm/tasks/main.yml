@@ -1,0 +1,96 @@
+---
+
+- name: Create CiviCRM DB
+  mysql_db:
+   name: civicrm
+   state: present
+
+- name: Create CiviCRM Mysql User
+  mysql_user:
+   name: civicrm_user
+   host: "localhost"
+   password: CiviCrmSecretPassword
+   priv: 'civicrm.*:ALL'
+   state: present
+
+- name: Reload privilege tables allowing select
+  command: 'mysql -ne "{{ item }}"'
+  no_log: True
+  with_items:
+    - GRANT SELECT ON civicrm.* TO drupal@localhost IDENTIFIED BY 'DrupalSecretPassword'
+
+- name: Reload privilege tables
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+
+- name: copy civicrm.drush.inc
+  copy: src=../files/civicrm.drush.inc dest=/root/.drush/civicrm.drush.inc mode=640
+
+- name: Download CiviCRM for Drupal7
+  get_url:
+   url: "https://download.civicrm.org/civicrm-4.7.16-drupal.tar.gz?src=donate"
+   dest: "~/civiCRM.tar.gz"
+   owner: "root"
+   mode: 0740
+
+- name: Source it   
+  command: php /root/.drush/civicrm.drush.inc
+
+- name: Drush clear-cache
+  command: drush cc drush
+
+- name: Install CiviCRM
+  command: drush civicrm-install --dbhost=localhost --dbname=civicrm --dbuser=civicrm_user --dbpass=CiviCrmSecretPassword --destination=/sites/all/modules --tarfile=~/civiCRM.tar.gz --root=/home/drupal/public_html
+
+- name: remove src file
+  file: path=/root/.drush/civicrm.drush.inc state=absent
+
+- name: copy new settings
+  copy: src=../files/settings_php_civicrm_update.txt
+    dest=/home/drupal/public_html/sites/default/settings_php_civicrm_update.txt
+
+- name: add settings
+  shell: cat /home/drupal/public_html/sites/default/settings_php_civicrm_update.txt >> /home/drupal/public_html/sites/default/settings.php
+  args:
+   executable: /bin/bash
+
+- name: Set default site permissions
+  command: chmod 775 /home/drupal/public_html/sites/default
+
+- name: Enable CiviCRM
+  command: drush pm-enable civicrm --root=/home/drupal/public_html --yes
+
+
+- name: Set perms on files civicrm
+  command: chmod -R 755 /home/drupal/public_html/sites/default/files/civicrm
+
+# to Settings - Drupal Integration
+
+- name: cache clear drush
+  command: drush cache-clear drush
+
+
+- name: Install Views3
+  command: drush dl views-7.x-3.18 -y
+
+- name: cache clear drush
+  command: drush cache-clear drush
+
+- name: Install Views3 ui
+  command: drush en views views_ui -y --root=/home/drupal/public_html --yes
+
+- name: Change ownership
+  command: chown www-data:www-data /home/drupal/public_html/sites/default/files -R
+
+
+- name: Modify CiviCRM Extension directory prereq
+  lineinfile: dest=/home/drupal/public_html/sites/default/civicrm.settings.php regexp='^(.*)Add this line only once above any settings overrides' line="global $civicrm_setting;"
+
+- name: Modify CiviCRM Extension directory 
+  lineinfile: dest=/home/drupal/public_html/sites/default/civicrm.settings.php regexp='^(.*)extensionsDir' line="$civicrm_setting['Directory Preferences']['extensionsDir'] = '/home/drupal/public_html/sites/default/files/extensions';"
+
+
+
+
+

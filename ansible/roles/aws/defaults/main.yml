@@ -1,0 +1,19 @@
+---
+
+# HERE WE ARE GOING TO DEFINE OUR VARS
+
+
+# South America (São Paulo)	
+ec2_region: sa-east-1	
+
+# Ubuntu Server 16.04 LTS (HVM), SSD Volume Type 
+ami_id: ami-0318cb6e2f90d688b
+
+# Instance type
+instance_type: t2.micro	
+
+# Key pair name
+key_name: Admin-key-pair-brazil
+
+
+

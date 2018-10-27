@@ -1,0 +1,72 @@
+
+- name: Add Drupal user
+  user:
+   name: drupal
+   password: $6$Zh3V6egoV$7m2XGdMaiKbrP/YF927y/cyA1kN9XfUbMzNRS1fRWzlv2pJAOeFXGSdSpUDgAKGaZ1JJidRLlJWY0CujRPkjv0
+   shell: /bin/false
+   group: www-data
+
+- name: Install DRUSH
+  apt: name=drush update_cache=yes cache_valid_time=3600 state=present
+
+- name: Create Drupal DB
+  mysql_db:
+   name: "{{ drupal_db_name }}"
+   state: present
+
+- name: Create Drupal Mysql User
+  mysql_user:
+   name: "{{ drupal_db_user }}"
+   host: "localhost"
+   password: "{{ drupal_db_password }}"
+   priv: 'drupal.*:ALL'
+   state: present
+
+- name: Drupal | Get the latest stable version(7)
+  git:
+   repo: "https://github.com/drupal/drupal.git"
+   version: "7.x"
+   force: true
+   dest: "{{ drupal_docroot }}"
+
+- name: Drush installs Drupal
+  command: |
+    drush site-install standard -y
+    --site-name="{{ drupal_site_name }}"
+    --account-name={{ drupal_account_name }}
+    --account-pass={{ drupal_account_pass }}
+    --db-url=mysql://{{ drupal_db_user }}:{{ drupal_db_password }}@localhost/{{ drupal_db_name }}
+    -r {{ drupal_docroot }}
+
+- name: Restart NGINX
+  service: name=nginx state=restarted
+
+# "Copy Default conf"
+- name: Copy nginx custom conf
+  template:
+   src: ../templates/nginx.conf
+   dest: /etc/nginx/nginx.conf
+
+
+- name: Copy Default conf
+  template:
+   src: ../templates/default
+   dest: /etc/nginx/sites-available/default
+
+- name: Creates private directory
+  file: path=/home/drupal/public_html/sites/default/files/private state=directory
+
+- name: Install entry in nginx for specified site
+  template:
+   src: ../templates/template-domain
+   dest: /etc/nginx/sites-available/drupal
+
+- name: Activating by symlinking
+  file:
+   src: /etc/nginx/sites-available/drupal
+   dest: /etc/nginx/sites-enabled/drupal
+   state: link    
+
+- name: Restart NGINX after adding ssl
+  service: name=nginx state=restarted
+

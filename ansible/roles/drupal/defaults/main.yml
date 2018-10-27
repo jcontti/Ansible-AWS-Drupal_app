@@ -1,0 +1,10 @@
+---
+
+drupal_site_name: Demo Site
+drupal_account_name: admin
+drupal_account_pass: admin
+drupal_docroot: /home/drupal/public_html
+drupal_db_user: drupal_user
+drupal_db_password: DrupalSecretPassword
+drupal_db_name: drupal
+ansible_ssh_user: ubuntu

@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# # # # Define vars
+
+s3_bucket="backup-bucket-example"
+s3_prefix="test"
+
+backup_tmp_dest="/tmp/dump"
+
+DATE=`date +%d-%m-%Y-%H%M%S`
+BACKUP_NAME="back_civicrm_drupal-${DATE}.tar.gz"
+
+
+if [ ! -d $backup_tmp_dest ]; then
+	mkdir $backup_tmp_dest
+fi
+
+if [ ! -d /tmp/sql ]; then
+	mkdir /tmp/sql
+fi
+
+# # # #  backup databases
+mysqldump -u root --all-databases > /tmp/sql/mysqldump.sql
+
+# # # #  backup sites
+tar -cf $backup_tmp_dest/backup.tar --directory=/home/drupal/public_html . 
+
+
+cd /tmp && tar -uf $backup_tmp_dest/backup.tar sql/ 
+gzip $backup_tmp_dest/backup.tar -f
+mv $backup_tmp_dest/backup.tar.gz $backup_tmp_dest/$BACKUP_NAME
+
+# # # #  send to AWS s3
+aws s3 cp $backup_tmp_dest/$BACKUP_NAME s3://$s3_bucket/$s3_prefix/$BACKUP_NAME
+
+echo "- - - - - - JOB DONE - - - - - -"
+
